@@ -44,6 +44,7 @@ body { font-family: 'Segoe UI', 'Hiragino Sans', 'Yu Gothic', sans-serif; backgr
 canvas { max-height: 450px; }
 .insight { background: #1a1040; border-left: 3px solid #7c3aed; padding: 12px 16px; margin: 10px 0; border-radius: 0 8px 8px 0; font-size: 13px; line-height: 1.6; }
 .insight strong { color: #a78bfa; }
+.table-comment { color: #999; font-size: 13px; margin: -8px 0 12px 0; }
 .heatmap { width: 100%; border-collapse: collapse; font-size: 13px; }
 .heatmap th { padding: 8px 6px; text-align: center; color: #a78bfa; font-weight: normal; border-bottom: 1px solid #333; position: sticky; top: 0; background: #12121e; white-space: nowrap; }
 .heatmap td { padding: 8px 6px; text-align: center; border-bottom: 1px solid #1a1a2a; font-size: 12px; }
@@ -109,6 +110,7 @@ canvas { max-height: 450px; }
 <!-- 都道府県×施術 価格ヒートマップ -->
 <div class="card grid-full">
   <h2>都道府県 × 施術 平均価格ヒートマップ（円）</h2>
+  <p class="table-comment">各都道府県の施術別平均価格を色の濃淡で比較。地域ごとの価格差が一目でわかります。</p>
   <div style="overflow-x:auto">
     <table class="heatmap" id="priceHeatmap"></table>
   </div>
