@@ -330,18 +330,20 @@ const colors = ['#7c3aed','#ec4899','#f59e0b','#10b981','#3b82f6','#8b5cf6','#ef
         return n + ' (' + c.prefecture.replace(/[都府県]$/,'') + ')';
       }),
       datasets: [
-        { label: '口コミ数', data: scored.map(c => c.diaries_count), backgroundColor: purple, yAxisID: 'y' },
-        { label: '評価', data: scored.map(c => c.rating), backgroundColor: amber, yAxisID: 'y1', type: 'line',
-          borderColor: amber, borderWidth: 2, pointRadius: 4, fill: false }
+        { label: '口コミ数', data: scored.map(c => c.diaries_count), backgroundColor: purple, xAxisID: 'x' },
+        { label: '★評価', data: scored.map(c => c.rating), backgroundColor: amber + 'cc', xAxisID: 'x1',
+          barPercentage: 0.5 }
       ]
     },
     options: { indexAxis: 'y',
       plugins: { legend: { position: 'top' },
-        tooltip: { callbacks: { label: ctx => ctx.dataset.label === '評価' ? `★${ctx.raw}` : `${ctx.raw.toLocaleString()}件` } } },
+        tooltip: { callbacks: { label: ctx => ctx.dataset.label === '★評価' ? `★${ctx.raw}` : `${ctx.raw.toLocaleString()}件` } } },
       scales: {
-        x: { grid: { color: '#1a1a2a' }, position: 'bottom' },
-        y: { ticks: { font: { size: 10 }, autoSkip: false }, afterFit: a => { a.width = 195; } },
-        y1: { display: false, min: 3, max: 5 }
+        x: { grid: { color: '#1a1a2a' }, position: 'bottom', title: { display: true, text: '口コミ数', color: '#aaa' } },
+        x1: { grid: { drawOnChartArea: false }, position: 'top', min: 0, max: 5,
+          title: { display: true, text: '★評価', color: amber },
+          ticks: { color: amber, callback: v => '★' + v } },
+        y: { ticks: { font: { size: 10 }, autoSkip: false }, afterFit: a => { a.width = 195; } }
       } }
   });
 })();
