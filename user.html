@@ -125,6 +125,40 @@ canvas { max-height: 420px; }
   <canvas id="siteSatChart"></canvas>
 </div>
 
+<!-- 9. 施術トレンド推移 -->
+<div class="card grid-full">
+  <h2>施術トレンド推移 <span class="sub">月別口コミ数の変化（TOP5施術）</span></h2>
+  <canvas id="trendChart" style="max-height:450px"></canvas>
+</div>
+
+<!-- 10. モニター率ランキング -->
+<div class="card grid-full">
+  <h2>モニター率ランキング <span class="sub">モニター募集が多い施術＝安く受けやすい</span></h2>
+  <canvas id="monitorRateChart" style="max-height:500px"></canvas>
+</div>
+
+<!-- 11. コスパランキング -->
+<div class="card grid-full">
+  <h2>コスパランキング <span class="sub">満足度÷平均価格（満足度データあり施術のみ）</span></h2>
+  <canvas id="costPerfChart" style="max-height:500px"></canvas>
+</div>
+
+<!-- 12. 初心者おすすめ施術ガイド -->
+<div class="card grid-full">
+  <h2>初心者おすすめ施術ガイド <span class="sub">ダウンタイム短め＆初心者向け</span></h2>
+  <div style="overflow-x:auto">
+    <table class="dt-table" id="beginnerTable"></table>
+  </div>
+</div>
+
+<!-- 13. 人気クリニック×施術マップ -->
+<div class="card grid-full">
+  <h2>人気クリニック×施術マップ <span class="sub">どのクリニックがどの施術で人気？</span></h2>
+  <div style="overflow-x:auto">
+    <table class="dt-table" id="heatmapTable"></table>
+  </div>
+</div>
+
 </div>
 </div>
 
@@ -406,6 +440,229 @@ const colors = ['#7c3aed','#ec4899','#f59e0b','#10b981','#3b82f6','#8b5cf6','#ef
       scales: { y: { min: 3.5, max: 5.0, grid: { color: '#1a1a2a' }, ticks: { callback: v => v.toFixed(1) } },
         x: { ticks: { font: { size: 13 } } } } }
   });
+})();
+
+// ===== 9. 施術トレンド推移 =====
+(() => {
+  // Count per surgery per month, only 2023+
+  const byMonthSurg = {};
+  const surgCount = {};
+  diaries.forEach(d => {
+    if (!d.treated_date || !d.surgery) return;
+    const ym = d.treated_date.slice(0, 7);
+    if (ym < '2023-01') return;
+    surgCount[d.surgery] = (surgCount[d.surgery] || 0) + 1;
+    const key = ym + '|' + d.surgery;
+    byMonthSurg[key] = (byMonthSurg[key] || 0) + 1;
+  });
+  // Top 5 surgeries by total count in period
+  const top5 = Object.entries(surgCount).sort((a,b) => b[1] - a[1]).slice(0, 5).map(x => x[0]);
+  // Get all months sorted
+  const monthsSet = new Set();
+  Object.keys(byMonthSurg).forEach(k => monthsSet.add(k.split('|')[0]));
+  const months = [...monthsSet].sort();
+  const datasets = top5.map((surg, i) => ({
+    label: surg.length > 18 ? surg.slice(0,18) + '…' : surg,
+    data: months.map(m => byMonthSurg[m + '|' + surg] || 0),
+    borderColor: colors[i],
+    backgroundColor: colors[i] + '33',
+    tension: 0.3,
+    pointRadius: 2,
+    borderWidth: 2,
+    fill: false
+  }));
+  new Chart(document.getElementById('trendChart'), {
+    type: 'line',
+    data: { labels: months, datasets },
+    options: {
+      plugins: { legend: { labels: { font: { size: 11 }, boxWidth: 14 } } },
+      scales: {
+        y: { grid: { color: '#1a1a2a' }, title: { display: true, text: '口コミ数', color: '#888' } },
+        x: { grid: { color: '#1a1a2a' }, ticks: { font: { size: 10 }, maxRotation: 45 } }
+      }
+    }
+  });
+})();
+
+// ===== 10. モニター率ランキング =====
+(() => {
+  const bySurg = {};
+  diaries.forEach(d => {
+    if (!d.surgery) return;
+    if (!bySurg[d.surgery]) bySurg[d.surgery] = { total: 0, monitor: 0 };
+    bySurg[d.surgery].total++;
+    if (d.is_monitor) bySurg[d.surgery].monitor++;
+  });
+  const ranked = Object.entries(bySurg)
+    .filter(([,v]) => v.total >= 20)
+    .map(([name, v]) => ({ name, rate: v.monitor / v.total * 100, total: v.total, monitor: v.monitor }))
+    .sort((a,b) => b.rate - a.rate)
+    .slice(0, 15);
+  const maxRate = Math.max(...ranked.map(r => r.rate));
+  new Chart(document.getElementById('monitorRateChart'), {
+    type: 'bar',
+    data: {
+      labels: ranked.map(r => r.name.length > 20 ? r.name.slice(0,20) + '…' : r.name),
+      datasets: [{
+        data: ranked.map(r => r.rate),
+        backgroundColor: ranked.map(r => {
+          const ratio = r.rate / maxRate;
+          const g = Math.round(120 + 60 * ratio);
+          const rb = Math.round(140 - 60 * ratio);
+          return `rgba(${rb}, ${g}, ${rb}, 0.85)`;
+        }),
+        borderWidth: 0
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => `${ranked[ctx.dataIndex].rate.toFixed(1)}% (${ranked[ctx.dataIndex].monitor}/${ranked[ctx.dataIndex].total}件)` } }
+      },
+      scales: {
+        x: { grid: { color: '#1a1a2a' }, ticks: { callback: v => v + '%' }, title: { display: true, text: 'モニター率 (%)', color: '#888' } },
+        y: { ticks: { font: { size: 12 }, autoSkip: false }, afterFit: a => { a.width = 175; } }
+      }
+    }
+  });
+})();
+
+// ===== 11. コスパランキング =====
+(() => {
+  // Parse avg_price_text like "4.3万円" to number (万円 = 10000)
+  function parsePrice(text) {
+    if (!text) return null;
+    const m = text.match(/([\d.]+)\s*万円/);
+    return m ? parseFloat(m[1]) : null;
+  }
+  // Compute avg satisfaction per surgery from diaries
+  const satBySurgId = {};
+  withSat.forEach(d => {
+    if (!d.surgery_id) return;
+    if (!satBySurgId[d.surgery_id]) satBySurgId[d.surgery_id] = [];
+    satBySurgId[d.surgery_id].push(d.satisfaction);
+  });
+  const results = surgeryDetails
+    .map(s => {
+      const price = parsePrice(s.avg_price_text);
+      const sats = satBySurgId[s.id];
+      if (!price || price <= 0 || !sats || sats.length < 5) return null;
+      const avgSat = sats.reduce((a,b) => a+b, 0) / sats.length;
+      return { name: s.name, cp: avgSat / price, avgSat, price, n: sats.length };
+    })
+    .filter(Boolean)
+    .sort((a,b) => b.cp - a.cp)
+    .slice(0, 15);
+  const maxCp = Math.max(...results.map(r => r.cp));
+  new Chart(document.getElementById('costPerfChart'), {
+    type: 'bar',
+    data: {
+      labels: results.map(r => r.name.length > 20 ? r.name.slice(0,20) + '…' : r.name),
+      datasets: [{
+        data: results.map(r => r.cp),
+        backgroundColor: results.map(r => {
+          const ratio = r.cp / maxCp;
+          return `rgba(${Math.round(245 - 50 * ratio)}, ${Math.round(120 + 80 * ratio)}, ${Math.round(60 + 20 * ratio)}, 0.85)`;
+        }),
+        borderWidth: 0
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => {
+          const r = results[ctx.dataIndex];
+          return `コスパ: ${r.cp.toFixed(3)} | 満足度: ${r.avgSat.toFixed(2)} | 価格: ${r.price}万円 (${r.n}件)`;
+        } } }
+      },
+      scales: {
+        x: { grid: { color: '#1a1a2a' }, title: { display: true, text: '満足度 ÷ 平均価格（万円）', color: '#888' } },
+        y: { ticks: { font: { size: 12 }, autoSkip: false }, afterFit: a => { a.width = 175; } }
+      }
+    }
+  });
+})();
+
+// ===== 12. 初心者おすすめ施術ガイド =====
+(() => {
+  const shortDt = ['ほぼなし', 'なし'];
+  const beginnerList = surgeryDetails.filter(s =>
+    s.is_recommend_for_beginner ||
+    shortDt.some(t => (s.downtime_term || '').includes(t)) ||
+    (s.downtime_term || '').includes('当日')
+  );
+  // Sort: beginner recommended first, then by diaries_count
+  beginnerList.sort((a,b) => {
+    if (a.is_recommend_for_beginner !== b.is_recommend_for_beginner) return a.is_recommend_for_beginner ? -1 : 1;
+    return b.diaries_count - a.diaries_count;
+  });
+  const table = document.getElementById('beginnerTable');
+  let html = '<thead><tr>' +
+    '<th>施術名</th><th>部位</th><th>平均価格</th><th>ダウンタイム</th><th>施術時間</th><th>口コミ数</th><th>初心者向け</th>' +
+    '</tr></thead><tbody>';
+  beginnerList.forEach(s => {
+    const isBeginner = s.is_recommend_for_beginner;
+    const rowStyle = isBeginner ? ' style="background:#1a2040"' : '';
+    html += `<tr${rowStyle}>` +
+      `<td style="color:#a78bfa;font-weight:bold">${s.name}</td>` +
+      `<td>${s.site || '-'}</td>` +
+      `<td>${s.avg_price_text || '-'}</td>` +
+      `<td>${s.downtime_term || '-'}</td>` +
+      `<td>${s.treatment_time || '-'}</td>` +
+      `<td>${s.diaries_count ? s.diaries_count.toLocaleString() : '-'}</td>` +
+      `<td>${isBeginner ? '<span style="color:#10b981;font-weight:bold">★ おすすめ</span>' : 'ダウンタイム短'}</td>` +
+      '</tr>';
+  });
+  html += '</tbody>';
+  table.innerHTML = html;
+})();
+
+// ===== 13. 人気クリニック×施術マップ =====
+(() => {
+  // Count reviews per clinic×surgery
+  const clinicSurg = {};
+  const surgCounts = {};
+  const clinicCounts = {};
+  diaries.forEach(d => {
+    if (!d.clinic_name || !d.surgery) return;
+    clinicCounts[d.clinic_name] = (clinicCounts[d.clinic_name] || 0) + 1;
+    surgCounts[d.surgery] = (surgCounts[d.surgery] || 0) + 1;
+    const key = d.clinic_name + '|||' + d.surgery;
+    clinicSurg[key] = (clinicSurg[key] || 0) + 1;
+  });
+  // Top 10 clinics, Top 8 surgeries
+  const topClinics = Object.entries(clinicCounts).sort((a,b) => b[1] - a[1]).slice(0, 10).map(x => x[0]);
+  const topSurgeries = Object.entries(surgCounts).sort((a,b) => b[1] - a[1]).slice(0, 8).map(x => x[0]);
+  // Find max for color scaling
+  let maxVal = 0;
+  topClinics.forEach(c => topSurgeries.forEach(s => {
+    const v = clinicSurg[c + '|||' + s] || 0;
+    if (v > maxVal) maxVal = v;
+  }));
+  const table = document.getElementById('heatmapTable');
+  let html = '<thead><tr><th style="min-width:160px">クリニック</th>';
+  topSurgeries.forEach(s => {
+    html += `<th style="font-size:11px;min-width:80px;text-align:center">${s.length > 12 ? s.slice(0,12) + '…' : s}</th>`;
+  });
+  html += '</tr></thead><tbody>';
+  topClinics.forEach(clinic => {
+    const shortName = clinic.length > 20 ? clinic.slice(0, 20) + '…' : clinic;
+    html += `<tr><td style="color:#a78bfa;font-size:12px">${shortName}</td>`;
+    topSurgeries.forEach(surg => {
+      const v = clinicSurg[clinic + '|||' + surg] || 0;
+      const intensity = maxVal > 0 ? v / maxVal : 0;
+      const r = Math.round(26 + 98 * intensity);
+      const g = Math.round(26 + 20 * intensity);
+      const b = Math.round(46 + 130 * intensity);
+      const textColor = intensity > 0.5 ? '#fff' : (v > 0 ? '#a78bfa' : '#555');
+      html += `<td style="text-align:center;background:rgba(${r},${g},${b},0.9);color:${textColor};font-size:12px;font-weight:${intensity > 0.3 ? 'bold' : 'normal'}">${v > 0 ? v : '-'}</td>`;
+    });
+    html += '</tr>';
+  });
+  html += '</tbody>';
+  table.innerHTML = html;
 })();
 </script>
 </body>
