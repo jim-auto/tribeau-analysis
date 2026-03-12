@@ -77,6 +77,7 @@ canvas { max-height: 420px; }
 <!-- 1. 施術別 満足度ランキング -->
 <div class="card grid-full">
   <h2>施術別 満足度ランキング <span class="sub">※ 満足度データ20件以上の施術のみ</span></h2>
+  <p class="table-comment">満足度が高い施術をランキング。実際に受けた人の評価で比較できます。</p>
   <canvas id="satRankChart" style="max-height:450px"></canvas>
   <div class="insight">
     <strong>目頭切開</strong>が満足度4.67でトップ。切開系は「変化が大きく実感しやすい」ため高評価になりやすい。<strong>ボトックス系</strong>も手軽さから4.4前後と安定。
@@ -86,18 +87,21 @@ canvas { max-height: 420px; }
 <!-- 2. 費用帯×満足度 -->
 <div class="card">
   <h2>費用帯別 平均満足度 <span class="sub">高い＝満足とは限らない？</span></h2>
+  <p class="table-comment">費用と満足度の関係を可視化。お金をかければ満足度が上がるとは限りません。</p>
   <canvas id="costSatChart"></canvas>
 </div>
 
 <!-- 3. モニター vs 通常 -->
 <div class="card">
   <h2>モニター施術 vs 通常施術 <span class="sub">モニター価格は満足度に影響する？</span></h2>
+  <p class="table-comment">モニター価格で受けた場合と通常価格の満足度を比較。お得に受けても満足できる？</p>
   <canvas id="monitorChart"></canvas>
 </div>
 
 <!-- 4. 年代別 人気施術 -->
 <div class="card grid-full">
   <h2>年代別 人気施術 TOP5 <span class="sub">あなたの年代は何をやってる？</span></h2>
+  <p class="table-comment">年代ごとに人気の施術を比較。同世代がどんな施術を選んでいるかチェック。</p>
   <canvas id="ageSurgChart" style="max-height:400px"></canvas>
 </div>
 
@@ -113,36 +117,42 @@ canvas { max-height: 420px; }
 <!-- 6. クリニック評価ランキング -->
 <div class="card grid-full">
   <h2>クリニック評価ランキング TOP20 <span class="sub">口コミ数×評価</span></h2>
+  <p class="table-comment">口コミ数と評価スコアを掛け合わせた総合ランキング。信頼度の高い評価です。</p>
   <canvas id="clinicChart" style="max-height:450px"></canvas>
 </div>
 
 <!-- 7. みんないくら使ってる？費用分布 -->
 <div class="card">
   <h2>みんないくら使ってる？ <span class="sub">口コミの費用帯分布</span></h2>
+  <p class="table-comment">みんなが実際に払った金額の分布。自分の予算が相場と合っているか確認できます。</p>
   <canvas id="costDistChart"></canvas>
 </div>
 
 <!-- 8. 施術部位別 平均満足度 -->
 <div class="card">
   <h2>施術部位別 平均満足度</h2>
+  <p class="table-comment">部位ごとの満足度を比較。どの部位の施術が高評価か一目でわかります。</p>
   <canvas id="siteSatChart"></canvas>
 </div>
 
 <!-- 9. 施術トレンド推移 -->
 <div class="card grid-full">
   <h2>施術トレンド推移 <span class="sub">月別口コミ数の変化（TOP5施術）</span></h2>
+  <p class="table-comment">人気施術の口コミ数推移。今伸びている施術やトレンドの変化が読み取れます。</p>
   <canvas id="trendChart" style="max-height:450px"></canvas>
 </div>
 
 <!-- 10. モニター率ランキング -->
 <div class="card grid-full">
   <h2>モニター率ランキング <span class="sub">モニター募集が多い施術＝安く受けやすい</span></h2>
+  <p class="table-comment">モニター募集の多い施術ほどお得に受けられるチャンス。狙い目の施術を探せます。</p>
   <canvas id="monitorRateChart" style="max-height:500px"></canvas>
 </div>
 
 <!-- 11. コスパランキング -->
 <div class="card grid-full">
   <h2>コスパランキング <span class="sub">満足度÷平均価格（満足度データあり施術のみ）</span></h2>
+  <p class="table-comment">満足度を価格で割ったコスパ指標。安くて満足度の高い施術が上位に並びます。</p>
   <canvas id="costPerfChart" style="max-height:500px"></canvas>
 </div>
 

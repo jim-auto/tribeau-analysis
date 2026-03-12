@@ -77,24 +77,28 @@ canvas { max-height: 450px; }
 <!-- 都道府県別クリニック数 -->
 <div class="card">
   <h2>都道府県別 クリニック数ランキング</h2>
+  <p class="table-comment">どの都道府県にクリニックが多いか。都市部への集中度がわかります。</p>
   <canvas id="prefClinicChart"></canvas>
 </div>
 
 <!-- 都道府県別 口コミ数 -->
 <div class="card">
   <h2>都道府県別 口コミ数ランキング</h2>
+  <p class="table-comment">口コミ投稿数の多い都道府県ランキング。利用者の多いエリアが見えます。</p>
   <canvas id="prefDiaryChart"></canvas>
 </div>
 
 <!-- 施術別 口コミ数 -->
 <div class="card">
   <h2>施術別 口コミ数 TOP12</h2>
+  <p class="table-comment">口コミ数が多い＝実際に受ける人が多い人気施術のランキングです。</p>
   <canvas id="surgeryDiaryChart"></canvas>
 </div>
 
 <!-- 施術部位別 シェア -->
 <div class="card">
   <h2>施術部位別シェア</h2>
+  <p class="table-comment">目元・鼻・肌など部位ごとの施術割合。どの部位に需要が集中しているかがわかります。</p>
   <canvas id="siteShareChart"></canvas>
   <div class="insight">
     目元・肌・鼻が三大需要。<strong>ボトックス系</strong>が口コミトップで、切らない施術のハードルの低さが伺える。
@@ -104,6 +108,7 @@ canvas { max-height: 450px; }
 <!-- 施術別 平均価格 -->
 <div class="card grid-full">
   <h2>施術別 平均価格（人気TOP12）</h2>
+  <p class="table-comment">人気施術の平均価格を比較。施術ごとの予算感がつかめます。</p>
   <canvas id="surgeryPriceChart" style="max-height:350px"></canvas>
 </div>
 
@@ -122,30 +127,35 @@ canvas { max-height: 450px; }
 <!-- 二重埋没 都道府県別価格比較 -->
 <div class="card">
   <h2>二重埋没 都道府県別 最安値比較</h2>
+  <p class="table-comment">最も人気の「二重埋没」を都道府県別に最安値で比較。地方との価格差に注目。</p>
   <canvas id="futeMinChart"></canvas>
 </div>
 
 <!-- 口コミ 年齢分布 -->
 <div class="card">
   <h2>口コミ投稿者 年齢分布</h2>
+  <p class="table-comment">どの年代が口コミを多く投稿しているか。主要ユーザー層がわかります。</p>
   <canvas id="ageDist"></canvas>
 </div>
 
 <!-- 口コミ 費用帯分布 -->
 <div class="card">
   <h2>口コミ 費用帯分布</h2>
+  <p class="table-comment">実際に支払われた費用の分布。ボリュームゾーンの価格帯がわかります。</p>
   <canvas id="costDist"></canvas>
 </div>
 
 <!-- 口コミ 満足度分布 -->
 <div class="card">
   <h2>口コミ 満足度分布</h2>
+  <p class="table-comment">口コミの満足度スコア分布。全体的な満足傾向を把握できます。</p>
   <canvas id="satisfactionDist"></canvas>
 </div>
 
 <!-- トップクリニック -->
 <div class="card grid-full">
   <h2>トップクリニック ランキング TOP15（口コミ+症例数）</h2>
+  <p class="table-comment">口コミ数と症例数を合算した総合ランキング。実績豊富なクリニックが上位に。</p>
   <canvas id="clinicRankChart" style="max-height:450px"></canvas>
 </div>
 
