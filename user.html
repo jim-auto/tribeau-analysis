@@ -205,20 +205,25 @@ const colors = ['#7c3aed','#ec4899','#f59e0b','#10b981','#3b82f6','#8b5cf6','#ef
 (() => {
   const ranking = A.satRanking;
   const canvas = document.getElementById('satRankChart');
-  canvas.parentElement.style.maxHeight = 'none';
-  canvas.style.height = Math.max(600, ranking.length * 22) + 'px';
+  const wrapper = canvas.parentElement;
+  wrapper.style.maxHeight = 'none';
+  wrapper.style.overflow = 'visible';
+  const h = ranking.length * 36;
+  canvas.style.height = h + 'px';
+  canvas.style.minHeight = h + 'px';
   new Chart(canvas, {
     type: 'bar',
     data: {
       labels: ranking.map(r => r.name.length > 18 ? r.name.slice(0,18)+'…' : r.name),
-      datasets: [{ data: ranking.map(r => r.avg), barThickness: 14,
+      datasets: [{ data: ranking.map(r => r.avg), barThickness: 18, maxBarThickness: 20,
         backgroundColor: ranking.map(r => r.avg >= 4.5 ? green : r.avg >= 4.0 ? amber : pink), borderWidth: 0 }]
     },
-    options: { indexAxis: 'y', maintainAspectRatio: false,
+    options: { indexAxis: 'y', maintainAspectRatio: false, responsive: true,
+      layout: { padding: { top: 10, bottom: 10 } },
       plugins: { legend: { display: false },
         tooltip: { callbacks: { label: ctx => `${ranking[ctx.dataIndex].avg.toFixed(2)} / 5 (${ranking[ctx.dataIndex].n}件)` } } },
       scales: { x: { min: 3.0, max: 5.0, grid: { color: '#1a1a2a' }, ticks: { callback: v => v.toFixed(1) } },
-        y: { ticks: { font: { size: 10 }, autoSkip: false, padding: 2 }, afterFit: a => { a.width = 170; } } } }
+        y: { ticks: { font: { size: 10 }, autoSkip: false }, afterFit: a => { a.width = 170; } } } }
   });
 })();
 
