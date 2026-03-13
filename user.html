@@ -43,6 +43,7 @@ body { font-family: 'Segoe UI', 'Hiragino Sans', 'Yu Gothic', sans-serif; backgr
 .card h2 { font-size: 17px; color: #a78bfa; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #252540; }
 .card h2 .sub { font-size: 12px; color: #888; font-weight: normal; margin-left: 8px; }
 canvas { max-height: 420px; }
+#satRankChart { max-height: none !important; }
 .insight { background: #1a1040; border-left: 3px solid #7c3aed; padding: 12px 16px; margin: 10px 0; border-radius: 0 8px 8px 0; font-size: 13px; line-height: 1.7; }
 .insight strong { color: #a78bfa; }
 .table-comment { color: #999; font-size: 13px; margin: -8px 0 12px 0; }
@@ -76,9 +77,9 @@ canvas { max-height: 420px; }
 
 <!-- 1. 施術別 満足度ランキング -->
 <div class="card grid-full">
-  <h2>施術別 満足度ランキング <span class="sub">※ 満足度データ20件以上の施術のみ</span></h2>
+  <h2>施術別 満足度ランキング TOP50 <span class="sub">※ 満足度データ20件以上の施術</span></h2>
   <p class="table-comment">満足度が高い施術をランキング。実際に受けた人の評価で比較できます。</p>
-  <canvas id="satRankChart"></canvas>
+  <div id="satRankWrapper"><canvas id="satRankChart"></canvas></div>
   <div class="insight">
     <strong>目頭切開</strong>が満足度4.67でトップ。切開系は「変化が大きく実感しやすい」ため高評価になりやすい。<strong>ボトックス系</strong>も手軽さから4.4前後と安定。
   </div>
@@ -203,19 +204,17 @@ const colors = ['#7c3aed','#ec4899','#f59e0b','#10b981','#3b82f6','#8b5cf6','#ef
 
 // ===== 1. 施術別 満足度ランキング =====
 (() => {
-  const ranking = A.satRanking;
+  const ranking = A.satRanking.slice(0, 50);
   const canvas = document.getElementById('satRankChart');
-  const wrapper = canvas.parentElement;
-  wrapper.style.maxHeight = 'none';
-  wrapper.style.overflow = 'visible';
-  const h = ranking.length * 36;
-  canvas.style.height = h + 'px';
-  canvas.style.minHeight = h + 'px';
+  const wrapper = document.getElementById('satRankWrapper');
+  const h = ranking.length * 32;
+  wrapper.style.height = h + 'px';
+  wrapper.style.position = 'relative';
   new Chart(canvas, {
     type: 'bar',
     data: {
-      labels: ranking.map(r => r.name.length > 18 ? r.name.slice(0,18)+'…' : r.name),
-      datasets: [{ data: ranking.map(r => r.avg), barThickness: 18, maxBarThickness: 20,
+      labels: ranking.map(r => r.name),
+      datasets: [{ data: ranking.map(r => r.avg), barThickness: 16,
         backgroundColor: ranking.map(r => r.avg >= 4.5 ? green : r.avg >= 4.0 ? amber : pink), borderWidth: 0 }]
     },
     options: { indexAxis: 'y', maintainAspectRatio: false, responsive: true,
@@ -223,7 +222,7 @@ const colors = ['#7c3aed','#ec4899','#f59e0b','#10b981','#3b82f6','#8b5cf6','#ef
       plugins: { legend: { display: false },
         tooltip: { callbacks: { label: ctx => `${ranking[ctx.dataIndex].avg.toFixed(2)} / 5 (${ranking[ctx.dataIndex].n}件)` } } },
       scales: { x: { min: 3.0, max: 5.0, grid: { color: '#1a1a2a' }, ticks: { callback: v => v.toFixed(1) } },
-        y: { ticks: { font: { size: 10 }, autoSkip: false }, afterFit: a => { a.width = 170; } } } }
+        y: { ticks: { font: { size: 12 }, autoSkip: false }, afterFit: a => { a.width = 220; } } } }
   });
 })();
 
